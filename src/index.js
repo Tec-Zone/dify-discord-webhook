@@ -2,12 +2,16 @@ const express = require('express');
 const crypto = require('crypto');
 const axios = require('axios')
 
+const {InteractionServer} = require('./interaction-server')
+
 const app = express();
 app.use(express.json());
 
 const secret_key = process.env.SECRET_KEY || crypto.randomBytes(32);
 const secret_iv = process.env.IV || crypto.randomBytes(16);
 const ecnryption_method = process.env.ENCRYPTION_METHOD || "aes-256-cbc"
+
+const server = new InteractionServer()
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -53,7 +57,7 @@ app.post('/generate-token', (req, res) => {
 });
 
 
-const webhookEventHandler = async (req, res) => {
+const handleDifyRequest = async (req, res) => {
     console.log('Webhook event received');
     const { token } = req.query;
     console.log("received",{ token })
@@ -86,7 +90,7 @@ const webhookEventHandler = async (req, res) => {
     }
   };
 
-app.post('/webhook', webhookEventHandler);
+app.post('/webhook', (req, res) => server.handleInteraction(req, res, handleDifyRequest));
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
