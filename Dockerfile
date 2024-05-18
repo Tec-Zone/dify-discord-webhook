@@ -16,7 +16,7 @@ RUN \
   fi
 
 # Production image, copy all the files and run next
-FROM base AS runner
+FROM deps AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
